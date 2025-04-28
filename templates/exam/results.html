@@ -1,0 +1,167 @@
+{% extends 'layout.html' %}
+
+{% block title %}Exam Results - Secure Online Examination Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Exam Results: {{ exam.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="result-header mb-4">
+                        <div class="result-score">{{ user_exam.score }} / {{ user_exam.total_marks }}</div>
+                        <div class="result-percentage">
+                            {{ "%.1f"|format(user_exam.get_score_percentage()) }}%
+                        </div>
+                        <div class="result-status {% if user_exam.get_score_percentage() >= 60 %}pass{% else %}fail{% endif %}">
+                            {{ "PASSED" if user_exam.get_score_percentage() >= 60 else "FAILED" }}
+                        </div>
+                    </div>
+                    
+                    <div class="result-details mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Exam Name:</span>
+                                        <span class="fw-bold">{{ exam.title }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Duration:</span>
+                                        <span>{{ exam.duration_minutes }} minutes</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Completed:</span>
+                                        <span>{{ user_exam.end_time.strftime('%d %b %Y, %H:%M') }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Total Questions:</span>
+                                        <span>{{ questions|length }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Attempted:</span>
+                                        <span>{{ responses|length }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Status:</span>
+                                        <span class="badge {% if user_exam.get_score_percentage() >= 60 %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ "Pass" if user_exam.get_score_percentage() >= 60 else "Fail" }}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3">Questions & Answers</h5>
+                    <div class="accordion" id="answersAccordion">
+                        {% for question in questions %}
+                            <div class="accordion-item mb-3">
+                                <h2 class="accordion-header" id="heading{{ question.id }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                            data-bs-target="#collapse{{ question.id }}" aria-expanded="false" 
+                                            aria-controls="collapse{{ question.id }}">
+                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                            <span><strong>Q{{ loop.index }}:</strong> {{ question.text|truncate(100) }}</span>
+                                            <span class="badge bg-primary me-2">{{ question.marks }} marks</span>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ question.id }}" class="accordion-collapse collapse" 
+                                     aria-labelledby="heading{{ question.id }}" data-bs-parent="#answersAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Question:</strong> {{ question.text }}</p>
+                                        
+                                        {% if question.id in responses %}
+                                            {% if question.question_type == 'text' %}
+                                                <div class="mb-3">
+                                                    <p><strong>Your Answer:</strong></p>
+                                                    <div class="p-3 bg-dark bg-opacity-10 rounded">
+                                                        {{ responses[question.id].response|default('No response provided', true)|nl2br }}
+                                                    </div>
+                                                    {% if responses[question.id].awarded_marks is not none %}
+                                                        <p class="mt-2">
+                                                            <strong>Marks Awarded:</strong> {{ responses[question.id].awarded_marks }} / {{ question.marks }}
+                                                        </p>
+                                                    {% endif %}
+                                                </div>
+                                            {% elif question.question_type == 'single_choice' %}
+                                                <p><strong>Your Answer:</strong></p>
+                                                <ul class="list-group">
+                                                    {% set user_selected = responses[question.id].response|int %}
+                                                    {% for option in question.options %}
+                                                        <li class="list-group-item {% if option.id == user_selected %}bg-light{% endif %}">
+                                                            {{ option.text }}
+                                                            {% if option.id == user_selected and option.is_correct %}
+                                                                <span class="badge bg-success float-end">Correct</span>
+                                                            {% elif option.id == user_selected and not option.is_correct %}
+                                                                <span class="badge bg-danger float-end">Incorrect</span>
+                                                            {% elif option.is_correct %}
+                                                                <span class="badge bg-success float-end">Correct Answer</span>
+                                                            {% endif %}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% elif question.question_type == 'multiple_choice' %}
+                                                <p><strong>Your Answer:</strong></p>
+                                                <ul class="list-group">
+                                                    {% set user_selected = responses[question.id].response.split(',') if responses[question.id].response else [] %}
+                                                    {% for option in question.options %}
+                                                        <li class="list-group-item {% if option.id|string in user_selected %}bg-light{% endif %}">
+                                                            {{ option.text }}
+                                                            {% if option.id|string in user_selected and option.is_correct %}
+                                                                <span class="badge bg-success float-end">Correct</span>
+                                                            {% elif option.id|string in user_selected and not option.is_correct %}
+                                                                <span class="badge bg-danger float-end">Incorrect</span>
+                                                            {% elif option.is_correct and option.id|string not in user_selected %}
+                                                                <span class="badge bg-success float-end">Correct Answer</span>
+                                                            {% endif %}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-exclamation-triangle me-2"></i> You did not answer this question.
+                                            </div>
+                                            
+                                            {% if question.question_type in ['single_choice', 'multiple_choice'] %}
+                                                <p><strong>Correct Answer(s):</strong></p>
+                                                <ul class="list-group">
+                                                    {% for option in question.options %}
+                                                        {% if option.is_correct %}
+                                                            <li class="list-group-item">
+                                                                {{ option.text }}
+                                                                <span class="badge bg-success float-end">Correct Answer</span>
+                                                            </li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                        </a>
+                        <span class="text-muted">Exam completed on {{ user_exam.end_time.strftime('%d %b %Y at %H:%M') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

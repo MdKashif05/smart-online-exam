@@ -1,0 +1,168 @@
+{% extends 'layout.html' %}
+
+{% block title %}Taking Exam - Secure Online Examination Platform{% endblock %}
+
+{% block head %}
+<style>
+    body {
+        overflow-x: hidden;
+    }
+    
+    /* Hide navigation bar during exam */
+    .navbar {
+        display: none;
+    }
+    
+    /* Hide footer during exam */
+    .footer {
+        display: none;
+    }
+    
+    /* Make sure the exam content takes the full height */
+    .main-content {
+        padding: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .container-fluid {
+        padding: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="exam-container">
+    <!-- Fullscreen notification -->
+    <div class="fullscreen-info" id="fullscreen-notification">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3 class="mb-4">Ready to begin your exam</h3>
+                <p class="mb-4">You are about to start <strong>{{ exam.title }}</strong>.</p>
+                <p class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    For security reasons, the exam will open in fullscreen mode.
+                    Exiting fullscreen may result in automatic submission of your exam.
+                </p>
+                <button id="start-fullscreen" class="btn btn-lg btn-primary">
+                    <i class="fas fa-expand me-2"></i> Enter Fullscreen & Start Exam
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Actual exam content (hidden initially) -->
+    <div id="exam-content" style="display: none;">
+        <!-- Exam header with timer -->
+        <div class="exam-header">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-12 col-md-5 mb-2 mb-md-0">
+                        <h4 class="mb-0 text-center text-md-start">{{ exam.title }}</h4>
+                    </div>
+                    <div class="col-6 col-md-4 mb-2 mb-md-0">
+                        <div class="timer-container bg-dark text-center">
+                            <i class="fas fa-clock me-2"></i>
+                            <span id="timer" data-remaining="{{ user_exam.get_remaining_time() }}">
+                                Loading...
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 text-end">
+                        <form id="exam-form" method="POST" action="{{ url_for('submit_exam', exam_id=exam.id) }}" class="d-flex justify-content-end">
+                            <button type="submit" id="submit-exam" class="btn btn-danger btn-sm btn-md-normal">
+                                <span class="d-none d-md-inline"><i class="fas fa-paper-plane me-1"></i> Submit Exam</span>
+                                <span class="d-inline d-md-none"><i class="fas fa-paper-plane"></i> Submit</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Exam body -->
+        <div class="container py-4">
+            <!-- Question navigation -->
+            <div class="nav-questions mb-4">
+                {% for question in questions %}
+                    <a href="#question-{{ question.id }}" class="nav-question-btn me-2 mb-2 
+                        {% if question.id in user_responses %}answered{% endif %}">
+                        {{ loop.index }}
+                    </a>
+                {% endfor %}
+            </div>
+            
+            <!-- Questions -->
+            {% for question in questions %}
+                <div class="question-card" id="question-{{ question.id }}">
+                    <div class="mb-3">
+                        <span class="question-number">Q{{ loop.index }}</span>
+                        <span class="question-text">{{ question.text }}</span>
+                        <span class="badge bg-secondary float-end">{{ question.marks }} marks</span>
+                    </div>
+                    
+                    <div class="question-options">
+                        {% if question.question_type == 'text' %}
+                            <div class="mb-3">
+                                <textarea 
+                                    class="form-control question-response" 
+                                    name="question_{{ question.id }}" 
+                                    rows="4" 
+                                    placeholder="Type your answer here..."
+                                    data-question-id="{{ question.id }}"
+                                >{{ user_responses[question.id].response if question.id in user_responses else '' }}</textarea>
+                            </div>
+                        {% elif question.question_type == 'single_choice' %}
+                            {% for option in question.options %}
+                                <div class="form-check mb-2">
+                                    <input 
+                                        class="form-check-input question-response" 
+                                        type="radio" 
+                                        name="question_{{ question.id }}" 
+                                        id="option_{{ option.id }}" 
+                                        value="{{ option.id }}"
+                                        data-question-id="{{ question.id }}"
+                                        {% if question.id in user_responses and user_responses[question.id].response|string == option.id|string %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label" for="option_{{ option.id }}">
+                                        {{ option.text }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        {% elif question.question_type == 'multiple_choice' %}
+                            {% set selected_options = user_responses[question.id].response.split(',') if question.id in user_responses and user_responses[question.id].response else [] %}
+                            {% for option in question.options %}
+                                <div class="form-check mb-2">
+                                    <input 
+                                        class="form-check-input question-response" 
+                                        type="checkbox" 
+                                        name="question_{{ question.id }}[]" 
+                                        id="option_{{ option.id }}" 
+                                        value="{{ option.id }}"
+                                        data-question-id="{{ question.id }}"
+                                        {% if option.id|string in selected_options %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label" for="option_{{ option.id }}">
+                                        {{ option.text }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <!-- Submit button at bottom too -->
+            <div class="submit-container">
+                <button type="button" onclick="document.getElementById('exam-form').submit();" class="btn btn-lg btn-danger">
+                    <i class="fas fa-paper-plane me-1"></i> Submit Exam
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/exam.js') }}"></script>
+{% endblock %}

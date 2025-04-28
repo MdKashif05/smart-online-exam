@@ -1,0 +1,409 @@
+/* General styling */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.footer {
+    margin-top: auto;
+    padding: 1rem 0;
+}
+
+/* Login and Register pages */
+.auth-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: var(--bs-gray-800);
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-title {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Dashboard */
+.card-exam {
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+}
+
+.card-exam:hover {
+    transform: translateY(-5px);
+}
+
+.exam-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.exam-description {
+    height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.exam-meta {
+    font-size: 0.85rem;
+    color: var(--bs-gray-600);
+}
+
+/* Admin Panel */
+.admin-sidebar {
+    min-height: calc(100vh - 56px);
+    border-right: 1px solid var(--bs-gray-700);
+}
+
+.admin-sidebar .nav-link {
+    color: var(--bs-gray-400);
+    border-radius: 0;
+}
+
+.admin-sidebar .nav-link:hover {
+    color: var(--bs-light);
+    background-color: var(--bs-gray-700);
+}
+
+.admin-sidebar .nav-link.active {
+    color: var(--bs-white);
+    background-color: var(--bs-primary);
+}
+
+.admin-content {
+    padding: 20px;
+}
+
+.stats-card {
+    text-align: center;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.stats-card .stats-number {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.stats-card .stats-title {
+    font-size: 1rem;
+    color: var(--bs-gray-500);
+}
+
+/* Exam Taking Page */
+.exam-header {
+    position: sticky;
+    top: 0;
+    background-color: var(--bs-dark);
+    padding: 10px 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--bs-gray-700);
+}
+
+.timer-container {
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.question-card {
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: var(--bs-gray-800);
+}
+
+.question-number {
+    font-weight: bold;
+    color: var(--bs-primary);
+    margin-right: 10px;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.question-options {
+    margin-left: 20px;
+}
+
+.nav-questions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.nav-question-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--bs-gray-700);
+    color: var(--bs-white);
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.nav-question-btn:hover {
+    background-color: var(--bs-primary);
+    color: var(--bs-white);
+}
+
+.nav-question-btn.answered {
+    background-color: var(--bs-success);
+    color: var(--bs-white);
+}
+
+.submit-container {
+    margin-top: 30px;
+    text-align: center;
+}
+
+/* Results page */
+.result-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.result-score {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.result-percentage {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.result-status {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.result-status.pass {
+    background-color: var(--bs-success);
+    color: var(--bs-white);
+}
+
+.result-status.fail {
+    background-color: var(--bs-danger);
+    color: var(--bs-white);
+}
+
+.answer-correct {
+    color: var(--bs-success);
+}
+
+.answer-incorrect {
+    color: var(--bs-danger);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--bs-gray-700);
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+    
+    .admin-sidebar .list-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .admin-sidebar .list-group-item {
+        width: calc(50% - 4px);
+        padding: 8px;
+        margin: 0;
+        font-size: 14px;
+    }
+    
+    .exam-header {
+        position: relative;
+    }
+    
+    .timer-container {
+        font-size: 1rem;
+        padding: 4px 10px;
+        margin-top: 8px;
+    }
+    
+    .admin-content, .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .stats-card {
+        padding: 10px;
+    }
+    
+    .stats-card .stats-number {
+        font-size: 1.6rem;
+    }
+    
+    .nav-questions {
+        justify-content: center;
+    }
+    
+    .nav-question-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+    
+    .question-card {
+        padding: 15px;
+    }
+    
+    table {
+        font-size: 0.85rem;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .result-score {
+        font-size: 1.8rem;
+    }
+}
+
+/* Fullscreen exam mode */
+.fullscreen-info {
+    text-align: center;
+    margin: 50px auto;
+    max-width: 600px;
+}
+
+/* Loader */
+.loader {
+    border: 5px solid var(--bs-gray-800);
+    border-top: 5px solid var(--bs-primary);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Forms */
+.form-label {
+    font-weight: bold;
+}
+
+.required:after {
+    content: " *";
+    color: var(--bs-danger);
+}
+
+/* Errors and validation */
+.invalid-feedback {
+    color: var(--bs-danger);
+    font-size: 0.85rem;
+}
+
+.is-invalid {
+    border-color: var(--bs-danger);
+}
+
+/* Mobile-specific button sizing */
+@media (max-width: 768px) {
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .btn-md-normal {
+        font-size: 0.875rem;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+    
+    /* Adjust form controls for touch */
+    .form-control, .form-select {
+        padding: 0.5rem;
+        font-size: 1rem;
+        height: auto;
+    }
+    
+    .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-top: 0.15rem;
+    }
+    
+    .form-check-label {
+        margin-left: 0.25rem;
+    }
+    
+    /* More space between sections */
+    .mb-4 {
+        margin-bottom: 1.25rem !important;
+    }
+    
+    /* Make text more readable */
+    body {
+        font-size: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    h4 {
+        font-size: 1.25rem;
+    }
+    
+    /* Custom scrollbar for better touch */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--bs-gray-900);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--bs-gray-700);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--bs-gray-600);
+    }
+}

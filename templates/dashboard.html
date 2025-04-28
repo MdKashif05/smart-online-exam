@@ -1,0 +1,81 @@
+{% extends 'layout.html' %}
+
+{% block title %}Dashboard - Secure Online Examination Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4 text-center text-md-start">Welcome, {{ current_user.username }}</h1>
+    
+    <div class="row">
+        <div class="col-lg-8 order-2 order-lg-1">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Available Exams</h5>
+                </div>
+                <div class="card-body">
+                    {% if available_exams %}
+                        <div class="row">
+                            {% for exam in available_exams %}
+                                <div class="col-sm-12 col-md-6 mb-3">
+                                    <div class="card card-exam h-100">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="exam-title">{{ exam.title }}</h5>
+                                            <p class="exam-description flex-grow-1">{{ exam.description }}</p>
+                                            <div class="exam-meta mb-3">
+                                                <i class="fas fa-clock me-1"></i> {{ exam.duration_minutes }} minutes
+                                            </div>
+                                            <div class="text-center text-md-start">
+                                                <a href="{{ url_for('exam_instructions', exam_id=exam.id) }}" class="btn btn-primary">
+                                                    <i class="fas fa-play-circle me-1"></i> Start Exam
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No exams are currently available for you.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 order-1 order-lg-2 mb-4 mb-lg-0">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Your Exam Results</h5>
+                </div>
+                <div class="card-body">
+                    {% if completed_exams %}
+                        <div class="list-group">
+                            {% for user_exam in completed_exams %}
+                                <a href="{{ url_for('view_exam_result', user_exam_id=user_exam.id) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between flex-column flex-sm-row">
+                                        <h6 class="mb-1">{{ user_exam.exam.title }}</h6>
+                                        <small class="text-end text-sm-start">{{ user_exam.end_time.strftime('%d %b %Y') }}</small>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <div class="score-info">
+                                            <span class="fw-bold">Score:</span> {{ user_exam.score }} / {{ user_exam.total_marks }}
+                                        </div>
+                                        <span class="badge rounded-pill {% if user_exam.get_score_percentage() >= 60 %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ "%.1f"|format(user_exam.get_score_percentage()) }}%
+                                        </span>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary">
+                            <i class="fas fa-clipboard-check me-2"></i> You haven't completed any exams yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

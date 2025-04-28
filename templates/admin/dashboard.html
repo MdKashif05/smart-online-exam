@@ -1,0 +1,135 @@
+{% extends 'layout.html' %}
+
+{% block title %}Admin Dashboard - Secure Online Examination Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block admin-sidebar">
+            <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
+                <h5 class="mb-0">Admin Menu</h5>
+                <button class="btn btn-sm btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#adminSidebar" aria-expanded="true" aria-controls="adminSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="list-group mt-2 collapse show" id="adminSidebar">
+                <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i> <span class="d-none d-sm-inline">Dashboard</span><span class="d-inline d-sm-none">Home</span>
+                </a>
+                <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i> <span class="d-none d-sm-inline">Users Management</span><span class="d-inline d-sm-none">Users</span>
+                </a>
+                <a href="{{ url_for('admin_exams') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt me-2"></i> <span class="d-none d-sm-inline">Exams Management</span><span class="d-inline d-sm-none">Exams</span>
+                </a>
+                <a href="{{ url_for('view_results') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-bar me-2"></i> <span class="d-none d-sm-inline">Results & Analytics</span><span class="d-inline d-sm-none">Results</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 admin-content">
+            <h1 class="mb-4">Admin Dashboard</h1>
+            
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-6 col-md-4">
+                    <div class="card stats-card bg-primary bg-opacity-25">
+                        <div class="stats-number">{{ total_users }}</div>
+                        <div class="stats-title">Registered Users</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="card stats-card bg-success bg-opacity-25">
+                        <div class="stats-number">{{ total_exams }}</div>
+                        <div class="stats-title">Total Exams</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card stats-card bg-info bg-opacity-25">
+                        <div class="stats-number">{{ '%d'|format(total_users * total_exams / 100) }}</div>
+                        <div class="stats-title">Total Submissions</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Exams -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Exams</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_exams %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Duration</th>
+                                        <th>Created</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for exam in recent_exams %}
+                                        <tr>
+                                            <td>{{ exam.title }}</td>
+                                            <td>{{ exam.duration_minutes }} minutes</td>
+                                            <td>{{ exam.created_at.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                <a href="{{ url_for('edit_exam', exam_id=exam.id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">No exams have been created yet.</div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('admin_exams') }}" class="btn btn-primary">View All Exams</a>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 col-md-4 mb-3">
+                            <a href="{{ url_for('create_exam') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-plus-circle mb-2 d-block" style="font-size: 20px;"></i>
+                                Create Exam
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4 mb-3">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-user-plus mb-2 d-block" style="font-size: 20px;"></i>
+                                Users
+                            </a>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <a href="{{ url_for('view_results') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-chart-line mb-2 d-block" style="font-size: 20px;"></i>
+                                Results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

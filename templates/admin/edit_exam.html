@@ -1,0 +1,244 @@
+{% extends 'layout.html' %}
+
+{% block title %}Edit Exam - Secure Online Examination Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block admin-sidebar">
+            <div class="list-group mt-3">
+                <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i> Users Management
+                </a>
+                <a href="{{ url_for('admin_exams') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-file-alt me-2"></i> Exams Management
+                </a>
+                <a href="{{ url_for('view_results') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-bar me-2"></i> Results & Analytics
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 admin-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Edit Exam: {{ exam.title }}</h1>
+                <a href="{{ url_for('admin_exams') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Exams
+                </a>
+            </div>
+            
+            <div class="row">
+                <!-- Exam Details Form -->
+                <div class="col-lg-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Exam Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('edit_exam', exam_id=exam.id) }}">
+                                {{ form.hidden_tag() }}
+                                
+                                <div class="mb-3">
+                                    {{ form.title.label(class="form-label required") }}
+                                    {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="Enter exam title") }}
+                                    {% if form.title.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.title.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form.description.label(class="form-label required") }}
+                                    {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=4, placeholder="Enter exam description") }}
+                                    {% if form.description.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.description.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form.duration_minutes.label(class="form-label required") }}
+                                    {{ form.duration_minutes(class="form-control" + (" is-invalid" if form.duration_minutes.errors else ""), placeholder="Enter duration in minutes") }}
+                                    {% if form.duration_minutes.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.duration_minutes.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="text-end">
+                                    {{ form.submit(class="btn btn-primary") }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Question Form -->
+                <div class="col-lg-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Add New Question</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('add_question', exam_id=exam.id) }}">
+                                {{ question_form.hidden_tag() }}
+                                
+                                <div class="mb-3">
+                                    {{ question_form.text.label(class="form-label required") }}
+                                    {{ question_form.text(class="form-control" + (" is-invalid" if question_form.text.errors else ""), rows=3, placeholder="Enter question text") }}
+                                    {% if question_form.text.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in question_form.text.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ question_form.question_type.label(class="form-label required") }}
+                                    {{ question_form.question_type(class="form-control" + (" is-invalid" if question_form.question_type.errors else "")) }}
+                                    {% if question_form.question_type.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in question_form.question_type.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ question_form.marks.label(class="form-label required") }}
+                                    {{ question_form.marks(class="form-control" + (" is-invalid" if question_form.marks.errors else ""), placeholder="Enter marks for this question") }}
+                                    {% if question_form.marks.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in question_form.marks.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Options for multiple choice questions -->
+                                <div id="options-container" class="mb-3" style="display: none;">
+                                    <label class="form-label">Options <small class="text-muted">(Check correct answer(s))</small></label>
+                                    <div id="options-list">
+                                        <div class="option-item mb-2 row align-items-center">
+                                            <div class="col-1">
+                                                <input type="radio" name="correct_options[]" value="0" class="correct-option form-check-input">
+                                            </div>
+                                            <div class="col-10">
+                                                <input type="text" name="options[]" class="form-control" placeholder="Option 1">
+                                            </div>
+                                            <div class="col-1">
+                                                <button type="button" class="btn btn-sm btn-danger remove-option">✕</button>
+                                            </div>
+                                        </div>
+                                        <div class="option-item mb-2 row align-items-center">
+                                            <div class="col-1">
+                                                <input type="radio" name="correct_options[]" value="1" class="correct-option form-check-input">
+                                            </div>
+                                            <div class="col-10">
+                                                <input type="text" name="options[]" class="form-control" placeholder="Option 2">
+                                            </div>
+                                            <div class="col-1">
+                                                <button type="button" class="btn btn-sm btn-danger remove-option">✕</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="add-option-btn" class="btn btn-sm btn-secondary mt-2">
+                                        <i class="fas fa-plus"></i> Add Option
+                                    </button>
+                                </div>
+                                
+                                <div class="text-end">
+                                    {{ question_form.submit(class="btn btn-primary") }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Existing Questions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Exam Questions ({{ exam.questions.count() }} questions)</h5>
+                </div>
+                <div class="card-body">
+                    {% if exam.questions.count() > 0 %}
+                        <div class="accordion" id="questionsAccordion">
+                            {% for question in exam.questions %}
+                                <div class="accordion-item mb-3">
+                                    <h2 class="accordion-header" id="heading{{ question.id }}">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ question.id }}" aria-expanded="false" aria-controls="collapse{{ question.id }}">
+                                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                                <span><strong>Q{{ loop.index }}:</strong> {{ question.text|truncate(100) }}</span>
+                                                <span class="badge bg-primary me-2">{{ question.marks }} marks</span>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ question.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ question.id }}" data-bs-parent="#questionsAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <p><strong>Question:</strong> {{ question.text }}</p>
+                                                    <p><strong>Type:</strong> {{ question.question_type|replace('_', ' ')|title }}</p>
+                                                    <p><strong>Marks:</strong> {{ question.marks }}</p>
+                                                    
+                                                    {% if question.question_type in ['single_choice', 'multiple_choice'] %}
+                                                        <p><strong>Options:</strong></p>
+                                                        <ul class="list-group">
+                                                            {% for option in question.options %}
+                                                                <li class="list-group-item {% if option.is_correct %}list-group-item-success{% endif %}">
+                                                                    {{ option.text }}
+                                                                    {% if option.is_correct %}
+                                                                        <span class="badge bg-success float-end">Correct</span>
+                                                                    {% endif %}
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <form action="{{ url_for('delete_question', question_id=question.id) }}" method="POST">
+                                                        <button type="submit" class="btn btn-danger confirm-delete">
+                                                            <i class="fas fa-trash me-1"></i> Delete Question
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No questions have been added to this exam yet. Use the form above to add questions.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

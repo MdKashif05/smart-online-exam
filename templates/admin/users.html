@@ -1,0 +1,121 @@
+{% extends 'layout.html' %}
+
+{% block title %}User Management - Secure Online Examination Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block admin-sidebar">
+            <div class="list-group mt-3">
+                <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-users me-2"></i> Users Management
+                </a>
+                <a href="{{ url_for('admin_exams') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt me-2"></i> Exams Management
+                </a>
+                <a href="{{ url_for('view_results') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-bar me-2"></i> Results & Analytics
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 admin-content">
+            <h1 class="mb-4">User Management</h1>
+            
+            <!-- Search and Filter -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" id="user-search" class="form-control" placeholder="Search users by name or email...">
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-filter me-1"></i> Filter
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                                    <li><a class="dropdown-item" href="#">All Users</a></li>
+                                    <li><a class="dropdown-item" href="#">Recently Active</a></li>
+                                    <li><a class="dropdown-item" href="#">Inactive Users</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Users Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Registered Users</h5>
+                </div>
+                <div class="card-body">
+                    {% if users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Registration Date</th>
+                                        <th>Exams Taken</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                        <tr>
+                                            <td>{{ user.username }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>{{ user.created_at.strftime('%d %b %Y') }}</td>
+                                            <td>{{ user.user_exams.count() }}</td>
+                                            <td>
+                                                <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-danger confirm-delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">No users have registered yet.</div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Showing {{ users|length }} users</span>
+                        <nav aria-label="User navigation">
+                            <ul class="pagination justify-content-end mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manual Grading - Secure Online Examination Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block admin-sidebar">
+            <div class="list-group mt-3">
+                <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i> Users Management
+                </a>
+                <a href="{{ url_for('admin_exams') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt me-2"></i> Exams Management
+                </a>
+                <a href="{{ url_for('view_results') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-chart-bar me-2"></i> Results & Analytics
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 admin-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Manual Grading</h1>
+                <a href="{{ url_for('view_results') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Results
+                </a>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Exam Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Exam:</strong> {{ exam.title }}</p>
+                            <p><strong>Student:</strong> {{ user_exam.user.username }}</p>
+                            <p><strong>Date Taken:</strong> {{ user_exam.end_time.strftime('%d %b %Y, %H:%M') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Current Score:</strong> {{ user_exam.score }} / {{ user_exam.total_marks }}</p>
+                            <p><strong>Percentage:</strong> {{ "%.1f"|format(user_exam.get_score_percentage()) }}%</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge {% if user_exam.get_score_percentage() >= 60 %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ "Pass" if user_exam.get_score_percentage() >= 60 else "Fail" }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Text Questions Requiring Manual Grading</h5>
+                </div>
+                <div class="card-body">
+                    {% if text_questions %}
+                        <form method="POST" action="{{ url_for('manual_grading', user_exam_id=user_exam.id) }}">
+                            {% for question in text_questions %}
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Question {{ loop.index }}: {{ question.text }}</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p><strong>Student's Answer:</strong></p>
+                                            <div class="p-3 bg-dark bg-opacity-10 rounded">
+                                                {% if question.id in responses %}
+                                                    {{ responses[question.id].response|default('No response provided', true)|nl2br }}
+                                                {% else %}
+                                                    <em>No response provided</em>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="score_{{ question.id }}" class="form-label">
+                                                <strong>Awarded Marks</strong> (out of {{ question.marks }}):
+                                            </label>
+                                            <input 
+                                                type="number" 
+                                                class="form-control" 
+                                                id="score_{{ question.id }}" 
+                                                name="score_{{ question.id }}" 
+                                                min="0" 
+                                                max="{{ question.marks }}" 
+                                                step="0.5"
+                                                value="{{ responses[question.id].awarded_marks if question.id in responses and responses[question.id].awarded_marks is not none else 0 }}"
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-1"></i> Save Grading
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> This exam does not contain any text questions that require manual grading.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

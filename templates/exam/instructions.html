@@ -1,0 +1,98 @@
+{% extends 'layout.html' %}
+
+{% block title %}Exam Instructions - Secure Online Examination Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ exam.title }} - Exam Instructions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i> Please read all instructions carefully</h5>
+                    </div>
+                    
+                    <h5 class="mb-3">Exam Information:</h5>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-clipboard-list me-2"></i> Title:</span>
+                            <span class="fw-bold">{{ exam.title }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-clock me-2"></i> Duration:</span>
+                            <span class="fw-bold">{{ exam.duration_minutes }} minutes</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-question-circle me-2"></i> Total Questions:</span>
+                            <span class="fw-bold">{{ exam.questions.count() }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-star me-2"></i> Total Marks:</span>
+                            <span class="fw-bold">{{ exam.get_total_marks() }}</span>
+                        </li>
+                    </ul>
+                    
+                    <h5 class="mb-3">Exam Description:</h5>
+                    <div class="mb-4 p-3 bg-light rounded">
+                        {{ exam.description|safe }}
+                    </div>
+                    
+                    <h5 class="mb-3">Important Guidelines:</h5>
+                    <div class="alert alert-warning">
+                        <ol class="mb-0">
+                            <li>This is a timed exam. Once you start, the timer cannot be paused.</li>
+                            <li>Do not navigate away from the exam window. Minimize, refresh, or closing the window will result in automatic submission.</li>
+                            <li>Once the exam starts, you must complete it in one session.</li>
+                            <li>Your responses are automatically saved as you progress through the exam.</li>
+                            <li>When time expires, your exam will be automatically submitted.</li>
+                            <li>You can submit your exam before the time expires if you finish early.</li>
+                            <li>The system will detect any attempt to cheat or navigate away from the exam.</li>
+                            <li>You may be required to enable fullscreen mode during the exam.</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <form action="{{ url_for('start_exam', exam_id=exam.id) }}" method="POST">
+                            <div class="form-check mb-3 d-inline-block text-start">
+                                <input class="form-check-input" type="checkbox" id="agree-terms" required>
+                                <label class="form-check-label" for="agree-terms">
+                                    I have read and understood all instructions
+                                </label>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-lg btn-success" id="start-exam-btn" disabled>
+                                    <i class="fas fa-play-circle me-2"></i> Start Exam
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                        </a>
+                        <small>Powered by Secure Online Examination Platform</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const agreeCheckbox = document.getElementById('agree-terms');
+        const startButton = document.getElementById('start-exam-btn');
+        
+        agreeCheckbox.addEventListener('change', function() {
+            startButton.disabled = !this.checked;
+        });
+    });
+</script>
+{% endblock %}
